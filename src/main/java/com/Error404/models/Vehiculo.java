@@ -7,8 +7,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-
-public class Vehiculo {
+public abstract class Vehiculo {
     private String numPatente;
     private int porcentajeBateria;
     private final double tarifaBase;
@@ -18,28 +17,26 @@ public class Vehiculo {
         this.porcentajeBateria = porcentajeBateria;
         this.tarifaBase = tarifaBase;
     }
-}
 
-@Getter
-@Setter
-@ToString
-class Monopatin extends Vehiculo {
-    private boolean amortiguacionReforzada;
-
-    public Monopatin(String numPatente, int porcentajeBateria, double tarifaBase, boolean amortiguacionReforzada) {
-        super(numPatente, porcentajeBateria, tarifaBase);
-        this.amortiguacionReforzada = amortiguacionReforzada;
+    public void consumirBateria(int porcentaje) {
+        if (porcentaje <= 0) return;
+        this.porcentajeBateria = Math.max(0, this.porcentajeBateria - porcentaje);
     }
-}
 
-@Getter
-@Setter
-@ToString
-class BicicletaElectrica extends Vehiculo {
-    private double tamañoDeCanasto;
 
-    public BicicletaElectrica(String numPatente, int porcentajeBateria, double tarifaBase, double tamañoDeCanasto) {
-        super(numPatente, porcentajeBateria, tarifaBase);
-        this.tamañoDeCanasto = tamañoDeCanasto;
+    // Método para cargar batería, asegurando que no exceda el 100%
+    public void cargarBateria(int porcentaje) {
+        if (porcentaje <= 0) return;
+        this.porcentajeBateria = Math.min(100, this.porcentajeBateria + porcentaje);
     }
+
+    public int consultarBateria() {
+        return porcentajeBateria;
+    }
+
+    public double getTarifaBase() {
+        return tarifaBase;
+    }
+
+    public abstract double calcularTarifa();
 }

@@ -1,0 +1,27 @@
+package com.Error404.models;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString
+public class BicicletaElectrica extends Vehiculo {
+    private double tamanoDeCanasto;
+
+    public BicicletaElectrica(String numPatente, int porcentajeBateria, double tarifaBase, double tamanoDeCanasto) {
+        super(numPatente, porcentajeBateria, tarifaBase);
+        this.tamanoDeCanasto = tamanoDeCanasto;
+    }
+
+    @Override
+    public double calcularTarifa() {
+        double discount = tamanoDeCanasto > 0 ? 0.05 : 0.0;
+        return getTarifaBase() * (1 - discount);
+    }
+
+    public void plegarCanasto() {
+        // comportamiento ejemplo: no cambia estado por ahora
+    }
+}
