@@ -1,7 +1,9 @@
 package com.Error404.repositories;
 
 import com.Error404.models.BicicletaElectrica;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class BicicletaElectricaRepository extends BaseRepository<BicicletaElectrica, String> {
 
     @Override

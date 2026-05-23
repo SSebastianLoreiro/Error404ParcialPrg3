@@ -3,12 +3,14 @@ package com.Error404.services;
 import com.Error404.models.EstacionDeAnclaje;
 import com.Error404.models.Vehiculo;
 import com.Error404.repositories.EstacionDeAnclajeRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Service
 public class EstacionService {
     private final EstacionDeAnclajeRepository repository;
 
@@ -96,5 +98,21 @@ public class EstacionService {
                         .filter(v -> tipo.isAssignableFrom(v.getClass()))
                         .collect(Collectors.toList()))
                 .orElseGet(ArrayList::new);
+    }
+
+    public Optional<EstacionDeAnclaje> buscarEstacionPorVehiculo(String patente) {
+        if (patente == null) {
+            return Optional.empty();
+        }
+        return findAll().stream()
+                .filter(estacion -> buscarPorPatente(estacion, patente).isPresent())
+                .findFirst();
+    }
+
+    public Optional<Vehiculo> buscarVehiculoEnTodasLasEstaciones(String patente) {
+        return findAll().stream()
+                .flatMap(estacion -> estacion.getVehiculosDisponibles().stream())
+                .filter(v -> patente != null && patente.equals(v.getNumPatente()))
+                .findFirst();
     }
 }

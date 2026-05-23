@@ -2,10 +2,12 @@ package com.Error404.services;
 
 import com.Error404.models.Monopatin;
 import com.Error404.repositories.MonopatinRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class MonopatinService {
     private final MonopatinRepository repository;
 

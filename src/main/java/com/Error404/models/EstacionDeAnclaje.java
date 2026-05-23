@@ -13,6 +13,10 @@ public class EstacionDeAnclaje {
    private String nombreUnico;
    private List<Vehiculo> vehiculosDisponibles;
 
+   public EstacionDeAnclaje() {
+       this.vehiculosDisponibles = new ArrayList<>();
+   }
+
    public EstacionDeAnclaje(String nombreUnico) {
        this.nombreUnico = nombreUnico;
        this.vehiculosDisponibles = new ArrayList<>();

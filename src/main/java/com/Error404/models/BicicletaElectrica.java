@@ -10,6 +10,10 @@ import lombok.ToString;
 public class BicicletaElectrica extends Vehiculo {
     private double tamanoDeCanasto;
 
+    public BicicletaElectrica() {
+        super();
+    }
+
     public BicicletaElectrica(String numPatente, int porcentajeBateria, double tarifaBase, double tamanoDeCanasto) {
         super(numPatente, porcentajeBateria, tarifaBase);
         this.tamanoDeCanasto = tamanoDeCanasto;
@@ -19,9 +23,5 @@ public class BicicletaElectrica extends Vehiculo {
     public double calcularTarifa() {
         double discount = tamanoDeCanasto > 0 ? 0.05 : 0.0;
         return getTarifaBase() * (1 - discount);
-    }
-
-    public void plegarCanasto() {
-        // comportamiento ejemplo: no cambia estado por ahora
     }
 }

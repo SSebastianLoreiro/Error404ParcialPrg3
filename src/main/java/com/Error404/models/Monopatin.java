@@ -10,6 +10,10 @@ import lombok.ToString;
 public class Monopatin extends Vehiculo {
     private boolean amortiguacionReforzada;
 
+    public Monopatin() {
+        super();
+    }
+
     public Monopatin(String numPatente, int porcentajeBateria, double tarifaBase, boolean amortiguacionReforzada) {
         super(numPatente, porcentajeBateria, tarifaBase);
         this.amortiguacionReforzada = amortiguacionReforzada;
@@ -21,7 +25,4 @@ public class Monopatin extends Vehiculo {
         return getTarifaBase() * (1 + extra);
     }
 
-    public void aplicarFrenadoRegenerativo(int porcentajeRecarga) {
-        cargarBateria(porcentajeRecarga);
-    }
 }

@@ -11,6 +11,9 @@ public class Usuario {
     private String id;
     private String nombre_completo;
 
+    public Usuario() {
+    }
+
     public Usuario(String id, String nombre_completo) {
         this.id = id;
         this.nombre_completo = nombre_completo;

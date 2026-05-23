@@ -2,10 +2,12 @@ package com.Error404.services;
 
 import com.Error404.models.Usuario;
 import com.Error404.repositories.UsuarioRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class UsuarioService {
     private final UsuarioRepository repository;
 

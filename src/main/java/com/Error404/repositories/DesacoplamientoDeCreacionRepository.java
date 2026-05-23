@@ -1,6 +1,7 @@
 package com.Error404.repositories;
 
 import com.Error404.models.DesacoplamientoDeCreacion;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -9,6 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository
 public class DesacoplamientoDeCreacionRepository {
 
     private final Map<String, DesacoplamientoDeCreacion> storage = new LinkedHashMap<>();

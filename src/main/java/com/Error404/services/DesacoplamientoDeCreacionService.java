@@ -2,10 +2,12 @@ package com.Error404.services;
 
 import com.Error404.models.DesacoplamientoDeCreacion;
 import com.Error404.repositories.DesacoplamientoDeCreacionRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class DesacoplamientoDeCreacionService {
     private final DesacoplamientoDeCreacionRepository repository;
 

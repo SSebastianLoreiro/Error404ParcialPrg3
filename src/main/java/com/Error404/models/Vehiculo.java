@@ -10,7 +10,11 @@ import lombok.ToString;
 public abstract class Vehiculo {
     private String numPatente;
     private int porcentajeBateria;
-    private final double tarifaBase;
+    private double tarifaBase;
+
+    public Vehiculo() {
+        this.tarifaBase = 0;
+    }
 
     public Vehiculo(String numPatente, int porcentajeBateria, double tarifaBase) {
         this.numPatente = numPatente;

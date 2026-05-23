@@ -2,10 +2,12 @@ package com.Error404.services;
 
 import com.Error404.models.ProcesamientoDePagos;
 import com.Error404.repositories.ProcesamientoDePagosRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class ProcesamientoDePagosService {
     private final ProcesamientoDePagosRepository repository;
 

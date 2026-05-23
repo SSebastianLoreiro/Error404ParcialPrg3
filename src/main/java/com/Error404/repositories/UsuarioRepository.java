@@ -1,7 +1,9 @@
 package com.Error404.repositories;
 
 import com.Error404.models.Usuario;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class UsuarioRepository extends BaseRepository<Usuario, String> {
 
     @Override

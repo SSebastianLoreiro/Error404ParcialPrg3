@@ -2,10 +2,12 @@ package com.Error404.services;
 
 import com.Error404.models.Vehiculo;
 import com.Error404.repositories.VehiculoRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class VehiculoService {
     private final VehiculoRepository repository;
 

@@ -2,10 +2,12 @@ package com.Error404.services;
 
 import com.Error404.models.BicicletaElectrica;
 import com.Error404.repositories.BicicletaElectricaRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class BicicletaElectricaService {
     private final BicicletaElectricaRepository repository;
 
