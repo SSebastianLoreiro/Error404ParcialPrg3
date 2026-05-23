@@ -37,7 +37,7 @@ public class AlquilerController {
     }
 
     @GetMapping("/desbloquear")
-    public ResponseEntity<DesbloqueoResponse> desbloquear(@RequestBody DesbloqueoRequest request) throws BateriaInsuficienteException {
+    public ResponseEntity<DesbloqueoResponse> desbloquear(@RequestBody DesbloqueoRequest request) {
         if (request == null || request.getIdUsuario() == null || request.getPatente() == null || request.getMetodoPago() == null) {
             throw new IllegalArgumentException("Debe enviar idUsuario, patente y metodoPago en el cuerpo de la solicitud");
         }

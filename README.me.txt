@@ -1,3 +1,1 @@
-mvn clean install
-
-mvn spring-boot:run
+Para llegar a completar el trabajo utilizamos ayuda de IA en metodos y creacion de controllers.
