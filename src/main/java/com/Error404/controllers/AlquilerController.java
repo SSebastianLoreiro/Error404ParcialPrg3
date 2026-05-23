@@ -12,9 +12,10 @@ import com.Error404.services.ProcesamientoDePagosService;
 import com.Error404.services.UsuarioService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 
 import java.util.Optional;
 
@@ -36,27 +37,31 @@ public class AlquilerController {
         this.pagosService = pagosService;
     }
 
+   
+    
     @GetMapping("/desbloquear")
-    public ResponseEntity<DesbloqueoResponse> desbloquear(@RequestBody DesbloqueoRequest request) {
-        if (request == null || request.getIdUsuario() == null || request.getPatente() == null || request.getMetodoPago() == null) {
-            throw new IllegalArgumentException("Debe enviar idUsuario, patente y metodoPago en el cuerpo de la solicitud");
+    public ResponseEntity<DesbloqueoResponse> desbloquear(@RequestParam("idUsuario") String idUsuario,
+                                                          @RequestParam("patente") String patente,
+                                                          @RequestParam("metodoPago") String metodoPago) {
+        if (idUsuario == null || idUsuario.isEmpty() || patente == null || patente.isEmpty() || metodoPago == null || metodoPago.isEmpty()) {
+            throw new IllegalArgumentException("Debe enviar idUsuario, patente y metodoPago como query params");
         }
 
-        Optional<Vehiculo> vehiculoOptional = estacionService.buscarVehiculoEnTodasLasEstaciones(request.getPatente());
-        Vehiculo vehiculo = vehiculoOptional.orElseThrow(() -> new VechiculoNoEncontradoException("No se encontró el vehículo con patente " + request.getPatente()));
+        Optional<Vehiculo> vehiculoOptional = estacionService.buscarVehiculoEnTodasLasEstaciones(patente);
+        Vehiculo vehiculo = vehiculoOptional.orElseThrow(() -> new VechiculoNoEncontradoException("No se encontró el vehículo con patente " + patente));
 
         if (vehiculo.consultarBateria() < NIVEL_MINIMO_BATERIA) {
             throw new BateriaInsuficienteException("El nivel de batería es insuficiente para circular: " + vehiculo.consultarBateria() + "%");
         }
 
-        Usuario usuario = usuarioService.findById(request.getIdUsuario())
-                .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontró el usuario con id " + request.getIdUsuario()));
+        Usuario usuario = usuarioService.findById(idUsuario)
+                .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontró el usuario con id " + idUsuario));
 
         double importeFinal = usuario.calcularCosto(vehiculo.calcularTarifa());
 
-        ProcesamientoDePagos.TipoDePago tipoPago = ProcesamientoDePagos.TipoDePago.fromString(request.getMetodoPago());
+        ProcesamientoDePagos.TipoDePago tipoPago = ProcesamientoDePagos.TipoDePago.fromString(metodoPago);
         if (tipoPago == null) {
-            throw new MedioDePagoNoValidoException("Método de pago no válido: " + request.getMetodoPago());
+            throw new MedioDePagoNoValidoException("Método de pago no válido: " + metodoPago);
         }
 
         ProcesamientoDePagos pago = new ProcesamientoDePagos(usuario.getId(), vehiculo.getNumPatente(), tipoPago, importeFinal);
