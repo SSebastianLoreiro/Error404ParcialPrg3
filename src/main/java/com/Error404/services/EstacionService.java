@@ -6,13 +6,15 @@ import com.Error404.repositories.EstacionDeAnclajeRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class EstacionService {
     private final EstacionDeAnclajeRepository repository;
+    private final Map<String, Vehiculo> vehiculosPorPatente = new HashMap<>();
 
     public EstacionService(EstacionDeAnclajeRepository repository) {
         this.repository = repository;
@@ -28,6 +30,17 @@ public class EstacionService {
 
     public List<EstacionDeAnclaje> findAll() {
         return repository.findAll();
+    }
+
+    public List<Vehiculo> findAllVehiculos() {
+        return new ArrayList<>(vehiculosPorPatente.values());
+    }
+
+    public Optional<Vehiculo> buscarVehiculoPorPatente(String patente) {
+        if (patente == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(vehiculosPorPatente.get(patente));
     }
 
     public boolean deleteByNombre(String nombreUnico) {
@@ -49,6 +62,7 @@ public class EstacionService {
             return false;
         }
         estacion.getVehiculosDisponibles().add(vehiculo);
+        vehiculosPorPatente.put(vehiculo.getNumPatente(), vehiculo);
         repository.save(estacion);
         return true;
     }
@@ -62,6 +76,9 @@ public class EstacionService {
         Optional<Vehiculo> encontrado = buscarPorPatente(estacion, patente);
         if (encontrado.isPresent()) {
             boolean removed = estacion.getVehiculosDisponibles().remove(encontrado.get());
+            if (removed) {
+                vehiculosPorPatente.remove(patente);
+            }
             repository.save(estacion);
             return removed;
         }
@@ -69,22 +86,31 @@ public class EstacionService {
     }
 
     public Optional<Vehiculo> buscarPorPatente(EstacionDeAnclaje estacion, String patente) {
-        if (estacion == null || patente == null) return Optional.empty();
-        return estacion.getVehiculosDisponibles().stream()
-                .filter(v -> patente.equals(v.getNumPatente()))
-                .findFirst();
+        if (estacion == null || patente == null) {
+            return Optional.empty();
+        }
+        for (Vehiculo vehiculo : estacion.getVehiculosDisponibles()) {
+            if (patente.equals(vehiculo.getNumPatente())) {
+                return Optional.of(vehiculo);
+            }
+        }
+        return Optional.empty();
     }
 
     public List<Vehiculo> listarVehiculosDisponibles(String nombreEstacion) {
         Optional<EstacionDeAnclaje> optionalEstacion = findByNombre(nombreEstacion);
-        return optionalEstacion.map(estacion -> new ArrayList<>(estacion.getVehiculosDisponibles()))
-                .orElseGet(ArrayList::new);
+        if (optionalEstacion.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(optionalEstacion.get().getVehiculosDisponibles());
     }
 
     public int cantidadVehiculos(String nombreEstacion) {
-        return findByNombre(nombreEstacion)
-                .map(estacion -> estacion.getVehiculosDisponibles().size())
-                .orElse(0);
+        Optional<EstacionDeAnclaje> optionalEstacion = findByNombre(nombreEstacion);
+        if (optionalEstacion.isEmpty()) {
+            return 0;
+        }
+        return optionalEstacion.get().getVehiculosDisponibles().size();
     }
 
     public boolean tieneVehiculos(String nombreEstacion) {
@@ -92,27 +118,35 @@ public class EstacionService {
     }
 
     public List<Vehiculo> obtenerPorTipo(String nombreEstacion, Class<? extends Vehiculo> tipo) {
-        if (tipo == null) return new ArrayList<>();
-        return findByNombre(nombreEstacion)
-                .map(estacion -> estacion.getVehiculosDisponibles().stream()
-                        .filter(v -> tipo.isAssignableFrom(v.getClass()))
-                        .collect(Collectors.toList()))
-                .orElseGet(ArrayList::new);
+        List<Vehiculo> resultado = new ArrayList<>();
+        if (tipo == null) {
+            return resultado;
+        }
+        Optional<EstacionDeAnclaje> optionalEstacion = findByNombre(nombreEstacion);
+        if (optionalEstacion.isEmpty()) {
+            return resultado;
+        }
+        for (Vehiculo vehiculo : optionalEstacion.get().getVehiculosDisponibles()) {
+            if (tipo.isAssignableFrom(vehiculo.getClass())) {
+                resultado.add(vehiculo);
+            }
+        }
+        return resultado;
     }
 
     public Optional<EstacionDeAnclaje> buscarEstacionPorVehiculo(String patente) {
         if (patente == null) {
             return Optional.empty();
         }
-        return findAll().stream()
-                .filter(estacion -> buscarPorPatente(estacion, patente).isPresent())
-                .findFirst();
+        for (EstacionDeAnclaje estacion : findAll()) {
+            if (buscarPorPatente(estacion, patente).isPresent()) {
+                return Optional.of(estacion);
+            }
+        }
+        return Optional.empty();
     }
 
     public Optional<Vehiculo> buscarVehiculoEnTodasLasEstaciones(String patente) {
-        return findAll().stream()
-                .flatMap(estacion -> estacion.getVehiculosDisponibles().stream())
-                .filter(v -> patente != null && patente.equals(v.getNumPatente()))
-                .findFirst();
+        return buscarVehiculoPorPatente(patente);
     }
 }

@@ -1,7 +1,6 @@
 package com.Error404.controllers;
 
 import com.Error404.models.EstacionDeAnclaje;
-import com.Error404.models.Vehiculo;
 import com.Error404.services.EstacionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

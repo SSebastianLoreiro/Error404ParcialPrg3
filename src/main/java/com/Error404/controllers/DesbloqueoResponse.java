@@ -5,13 +5,15 @@ public class DesbloqueoResponse {
     private String idUsuario;
     private String patente;
     private String tipoVehiculo;
+    private String faseActual;
     private double montoCobrado;
 
-    public DesbloqueoResponse(String mensaje, String idUsuario, String patente, String tipoVehiculo, double montoCobrado) {
+    public DesbloqueoResponse(String mensaje, String idUsuario, String patente, String tipoVehiculo, String faseActual, double montoCobrado) {
         this.mensaje = mensaje;
         this.idUsuario = idUsuario;
         this.patente = patente;
         this.tipoVehiculo = tipoVehiculo;
+        this.faseActual = faseActual;
         this.montoCobrado = montoCobrado;
     }
 
@@ -29,6 +31,10 @@ public class DesbloqueoResponse {
 
     public String getTipoVehiculo() {
         return tipoVehiculo;
+    }
+
+    public String getFaseActual() {
+        return faseActual;
     }
 
     public double getMontoCobrado() {

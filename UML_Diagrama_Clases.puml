@@ -1,0 +1,67 @@
+@startuml
+package models {
+  class Vehiculo {
+    - numPatente: String
+    - porcentajeBateria: int
+    - tarifaBase: double
+    - estado: VehiculoEstado
+    + iniciarViaje()
+    + finalizarViaje()
+    + enviarAReparacion()
+    + reparar()
+    + getEstadoActual(): String
+    + comparar(v: Vehiculo): int
+  }
+
+  interface VehiculoEstado {
+    + iniciarViaje(Vehiculo)
+    + finalizarViaje(Vehiculo)
+    + enviarAReparacion(Vehiculo)
+    + reparar(Vehiculo)
+  }
+
+  class EnEsperaEstado
+  class EnViajeEstado
+  class EnReparacionEstado
+
+  interface TarifaStrategy {
+    + calcular(minutos: int, tarifaBase: double): double
+  }
+
+  class TarifaEstandarStrategy
+  class TarifaHoraPicoStrategy
+  class TarifaClimaticaStrategy
+  class VehiculoTarifaDescendenteComparator
+  class GpsReporte
+}
+
+package controllers {
+  class AlquilerController
+  class VehiculoController
+  class GpsController
+  class DesbloqueoResponse
+  class FinalizarAlquilerResponse
+  class VehiculoResumenResponse
+}
+
+package services {
+  class EstacionService
+  class CriterioTarifaService
+  class AlertaGpsService
+}
+
+models.Vehiculo --> VehiculoEstado
+models.VehiculoEstado <|-- models.EnEsperaEstado
+models.VehiculoEstado <|-- models.EnViajeEstado
+models.VehiculoEstado <|-- models.EnReparacionEstado
+models.Vehiculo --> models.TarifaStrategy
+models.TarifaStrategy <|-- models.TarifaEstandarStrategy
+models.TarifaStrategy <|-- models.TarifaHoraPicoStrategy
+models.TarifaStrategy <|-- models.TarifaClimaticaStrategy
+controllers.AlquilerController --> services.EstacionService
+controllers.AlquilerController --> services.UsuarioService
+controllers.AlquilerController --> services.CriterioTarifaService
+controllers.VehiculoController --> services.EstacionService
+controllers.GpsController --> services.AlertaGpsService
+services.EstacionService --> models.Vehiculo
+@enduml
