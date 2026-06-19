@@ -32,7 +32,11 @@ public class BicicletaElectricaService {
     }
 
     public Optional<Double> calcularTarifa(String patente) {
-        return findByPatente(patente).map(BicicletaElectrica::calcularTarifa);
+        Optional<BicicletaElectrica> optional = findByPatente(patente);
+        if (optional.isPresent()) {
+            return Optional.of(optional.get().calcularTarifa());
+        }
+        return Optional.empty();
     }
 
     public boolean setTamanoDeCanasto(String patente, double tamano) {

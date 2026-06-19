@@ -36,10 +36,18 @@ public class UsuarioService {
     }
 
     public Optional<Double> calcularCosto(String id, double tarifaVehiculo) {
-        return findById(id).map(usuario -> usuario.calcularCosto(tarifaVehiculo));
+        Optional<Usuario> opt = findById(id);
+        if (opt.isPresent()) {
+            return Optional.of(opt.get().calcularCosto(tarifaVehiculo));
+        }
+        return Optional.empty();
     }
 
     public Optional<String> getTipo(String id) {
-        return findById(id).map(Usuario::getTipo);
+        Optional<Usuario> opt = findById(id);
+        if (opt.isPresent()) {
+            return Optional.of(opt.get().getTipo());
+        }
+        return Optional.empty();
     }
 }

@@ -5,7 +5,10 @@ import com.Error404.services.MonopatinService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import com.Error404.controllers.VehiculoResumenResponse;
 
 @RestController
 @RequestMapping("/api/monopatines")
@@ -18,20 +21,29 @@ public class MonopatinController {
     }
 
     @GetMapping
-    public List<Monopatin> listar() {
-        return service.findAll();
+    public List<VehiculoResumenResponse> listar() {
+        List<Monopatin> encontrados = service.findAll();
+        List<VehiculoResumenResponse> respuesta = new ArrayList<>();
+        for (Monopatin m : encontrados) {
+            respuesta.add(new VehiculoResumenResponse(m.getNumPatente(), m.getClass().getSimpleName(), m.getPorcentajeBateria(), m.getTarifaBase(), m.getEstado().toString()));
+        }
+        return respuesta;
     }
 
     @GetMapping("/{patente}")
-    public ResponseEntity<Monopatin> obtener(@PathVariable String patente) {
-        return service.findByPatente(patente)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<VehiculoResumenResponse> obtener(@PathVariable String patente) {
+        java.util.Optional<Monopatin> optional = service.findByPatente(patente);
+        if (optional.isPresent()) {
+            Monopatin m = optional.get();
+            return ResponseEntity.ok(new VehiculoResumenResponse(m.getNumPatente(), m.getClass().getSimpleName(), m.getPorcentajeBateria(), m.getTarifaBase(), m.getEstado().toString()));
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping
-    public Monopatin crear(@RequestBody Monopatin monopatin) {
-        return service.save(monopatin);
+    public VehiculoResumenResponse crear(@RequestBody Monopatin monopatin) {
+        Monopatin saved = service.save(monopatin);
+        return new VehiculoResumenResponse(saved.getNumPatente(), saved.getClass().getSimpleName(), saved.getPorcentajeBateria(), saved.getTarifaBase(), saved.getEstado().toString());
     }
 
     @DeleteMapping("/{patente}")

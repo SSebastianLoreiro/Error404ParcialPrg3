@@ -5,7 +5,10 @@ import com.Error404.services.BicicletaElectricaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import com.Error404.controllers.VehiculoResumenResponse;
 
 @RestController
 @RequestMapping("/api/bicicletas")
@@ -18,20 +21,29 @@ public class BicicletaElectricaController {
     }
 
     @GetMapping
-    public List<BicicletaElectrica> listar() {
-        return service.findAll();
+    public List<VehiculoResumenResponse> listar() {
+        List<BicicletaElectrica> encontrados = service.findAll();
+        List<VehiculoResumenResponse> respuesta = new ArrayList<>();
+        for (BicicletaElectrica b : encontrados) {
+            respuesta.add(new VehiculoResumenResponse(b.getNumPatente(), b.getClass().getSimpleName(), b.getPorcentajeBateria(), b.getTarifaBase(), b.getEstado().toString()));
+        }
+        return respuesta;
     }
 
     @GetMapping("/{patente}")
-    public ResponseEntity<BicicletaElectrica> obtener(@PathVariable String patente) {
-        return service.findByPatente(patente)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<VehiculoResumenResponse> obtener(@PathVariable String patente) {
+        java.util.Optional<BicicletaElectrica> optional = service.findByPatente(patente);
+        if (optional.isPresent()) {
+            BicicletaElectrica b = optional.get();
+            return ResponseEntity.ok(new VehiculoResumenResponse(b.getNumPatente(), b.getClass().getSimpleName(), b.getPorcentajeBateria(), b.getTarifaBase(), b.getEstado().toString()));
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping
-    public BicicletaElectrica crear(@RequestBody BicicletaElectrica bicicletaElectrica) {
-        return service.save(bicicletaElectrica);
+    public VehiculoResumenResponse crear(@RequestBody BicicletaElectrica bicicletaElectrica) {
+        BicicletaElectrica saved = service.save(bicicletaElectrica);
+        return new VehiculoResumenResponse(saved.getNumPatente(), saved.getClass().getSimpleName(), saved.getPorcentajeBateria(), saved.getTarifaBase(), saved.getEstado().toString());
     }
 
     @DeleteMapping("/{patente}")

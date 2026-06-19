@@ -74,6 +74,3 @@ Estrategias implementadas y registradas como beans Spring (configurable en calie
 
 - Mantener las estructuras de índice (`vehiculosPorPatente`) sincronizadas en todas las rutas de modificación de la flota para preservar O(1).
 - Para grandes volúmenes de GPS, considerar un procesamiento por lotes asíncrono fuera de la ruta HTTP si la entrada supera decenas de miles por petición.
-
----
-Archivo combinado a partir de `PERFORMANCE.md` y `franpermorfance.md` para consolidar la documentación de rendimiento.

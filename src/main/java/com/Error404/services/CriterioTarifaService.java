@@ -14,7 +14,15 @@ public class CriterioTarifaService {
 
     public CriterioTarifaService(Map<String, TarifaStrategy> criterios) {
         this.criterios = criterios;
-        this.criterioActivo = criterios.getOrDefault("tarifaEstandarStrategy", criterios.values().stream().findFirst().orElseThrow());
+        TarifaStrategy primera = null;
+        for (TarifaStrategy t : criterios.values()) {
+            primera = t;
+            break;
+        }
+        if (primera == null) {
+            throw new IllegalStateException("No hay criterios de tarifa registrados.");
+        }
+        this.criterioActivo = criterios.getOrDefault("tarifaEstandarStrategy", primera);
     }
 
     public double calcularCosto(Vehiculo vehiculo, int minutos) {

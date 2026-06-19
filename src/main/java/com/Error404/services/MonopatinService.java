@@ -32,7 +32,11 @@ public class MonopatinService {
     }
 
     public Optional<Double> calcularTarifa(String patente) {
-        return findByPatente(patente).map(Monopatin::calcularTarifa);
+        Optional<Monopatin> optional = findByPatente(patente);
+        if (optional.isPresent()) {
+            return Optional.of(optional.get().calcularTarifa());
+        }
+        return Optional.empty();
     }
 
     public boolean setAmortiguacionReforzada(String patente, boolean valor) {

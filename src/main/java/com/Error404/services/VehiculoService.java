@@ -36,7 +36,11 @@ public class VehiculoService {
     }
 
     public Optional<Double> calcularTarifa(String patente) {
-        return findByPatente(patente).map(Vehiculo::calcularTarifa);
+        Optional<Vehiculo> optional = findByPatente(patente);
+        if (optional.isPresent()) {
+            return Optional.of(optional.get().calcularTarifa());
+        }
+        return Optional.empty();
     }
 
     public boolean consumirBateria(String patente, int porcentaje) {

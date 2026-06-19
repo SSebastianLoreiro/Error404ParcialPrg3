@@ -16,6 +16,7 @@ import com.Error404.services.EstacionService;
 import com.Error404.services.ProcesamientoDePagosService;
 import com.Error404.services.UsuarioService;
 import org.springframework.http.ResponseEntity;
+import java.util.Optional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,15 +53,21 @@ public class AlquilerController {
             throw new IllegalArgumentException("Debe enviar idUsuario, patente y metodoPago en el cuerpo de la petición");
         }
 
-        Vehiculo vehiculo = estacionService.buscarVehiculoPorPatente(request.getPatente())
-                .orElseThrow(() -> new VechiculoNoEncontradoException("No se encontró el vehículo con patente " + request.getPatente()));
+        Optional<Vehiculo> optVehiculo = estacionService.buscarVehiculoPorPatente(request.getPatente());
+        if (optVehiculo.isEmpty()) {
+            throw new VechiculoNoEncontradoException("No se encontró el vehículo con patente " + request.getPatente());
+        }
+        Vehiculo vehiculo = optVehiculo.get();
 
         if (vehiculo.consultarBateria() < NIVEL_MINIMO_BATERIA) {
             throw new BateriaInsuficienteException("El nivel de batería es insuficiente para circular: " + vehiculo.consultarBateria() + "%");
         }
 
-        Usuario usuario = usuarioService.findById(request.getIdUsuario())
-            .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontró el usuario con id " + request.getIdUsuario()));
+        Optional<Usuario> optUsuario = usuarioService.findById(request.getIdUsuario());
+        if (optUsuario.isEmpty()) {
+            throw new UsuarioNoEncontradoException("No se encontró el usuario con id " + request.getIdUsuario());
+        }
+        Usuario usuario = optUsuario.get();
 
         vehiculo.iniciarViaje();
         double importeEstimado = criterioTarifaService.calcularCosto(vehiculo, 1);
@@ -104,15 +111,21 @@ public class AlquilerController {
             throw new IllegalArgumentException("Los minutos no pueden ser negativos.");
         }
 
-        Vehiculo vehiculo = estacionService.buscarVehiculoPorPatente(request.getPatente())
-                .orElseThrow(() -> new VechiculoNoEncontradoException("No se encontró el vehículo con patente " + request.getPatente()));
+        Optional<Vehiculo> optVehiculo = estacionService.buscarVehiculoPorPatente(request.getPatente());
+        if (optVehiculo.isEmpty()) {
+            throw new VechiculoNoEncontradoException("No se encontró el vehículo con patente " + request.getPatente());
+        }
+        Vehiculo vehiculo = optVehiculo.get();
 
         if (!"En Viaje".equals(vehiculo.getEstadoActual())) {
             throw new IllegalStateException("El vehículo no está en viaje y no puede finalizarse.");
         }
 
-        Usuario usuario = usuarioService.findById(request.getIdUsuario())
-                .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontró el usuario con id " + request.getIdUsuario()));
+        Optional<Usuario> optUsuario = usuarioService.findById(request.getIdUsuario());
+        if (optUsuario.isEmpty()) {
+            throw new UsuarioNoEncontradoException("No se encontró el usuario con id " + request.getIdUsuario());
+        }
+        Usuario usuario = optUsuario.get();
 
         double subtotal = criterioTarifaService.calcularCosto(vehiculo, request.getMinutos());
         double importeFinal = usuario.calcularCosto(subtotal);
