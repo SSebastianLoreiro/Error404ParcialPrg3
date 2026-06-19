@@ -1,5 +1,9 @@
 package com.Error404.controllers;
 
+import com.Error404.controllers.CriterioActivoResponse;
+import com.Error404.controllers.CriterioTarifaRequest;
+import com.Error404.controllers.DesbloqueoRequest;
+import com.Error404.controllers.FinalizarAlquilerRequest;
 import com.Error404.exception.BateriaInsuficienteException;
 import com.Error404.exception.MedioDePagoNoValidoException;
 import com.Error404.exception.UsuarioNoEncontradoException;
@@ -12,12 +16,10 @@ import com.Error404.services.EstacionService;
 import com.Error404.services.ProcesamientoDePagosService;
 import com.Error404.services.UsuarioService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/alquileres")
@@ -42,30 +44,30 @@ public class AlquilerController {
 
    
     
-    @GetMapping("/desbloquear")
-    public ResponseEntity<DesbloqueoResponse> desbloquear(@RequestParam("idUsuario") String idUsuario,
-                                                          @RequestParam("patente") String patente,
-                                                          @RequestParam("metodoPago") String metodoPago) {
-        if (idUsuario == null || idUsuario.isEmpty() || patente == null || patente.isEmpty() || metodoPago == null || metodoPago.isEmpty()) {
-            throw new IllegalArgumentException("Debe enviar idUsuario, patente y metodoPago como query params");
+    @PostMapping("/desbloquear")
+    public ResponseEntity<DesbloqueoResponse> desbloquear(@RequestBody DesbloqueoRequest request) {
+        if (request == null || request.getIdUsuario() == null || request.getIdUsuario().isEmpty()
+                || request.getPatente() == null || request.getPatente().isEmpty()
+                || request.getMetodoPago() == null || request.getMetodoPago().isEmpty()) {
+            throw new IllegalArgumentException("Debe enviar idUsuario, patente y metodoPago en el cuerpo de la petición");
         }
 
-        Vehiculo vehiculo = estacionService.buscarVehiculoPorPatente(patente)
-                .orElseThrow(() -> new VechiculoNoEncontradoException("No se encontró el vehículo con patente " + patente));
+        Vehiculo vehiculo = estacionService.buscarVehiculoPorPatente(request.getPatente())
+                .orElseThrow(() -> new VechiculoNoEncontradoException("No se encontró el vehículo con patente " + request.getPatente()));
 
         if (vehiculo.consultarBateria() < NIVEL_MINIMO_BATERIA) {
             throw new BateriaInsuficienteException("El nivel de batería es insuficiente para circular: " + vehiculo.consultarBateria() + "%");
         }
 
-        Usuario usuario = usuarioService.findById(idUsuario)
-                .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontró el usuario con id " + idUsuario));
+        Usuario usuario = usuarioService.findById(request.getIdUsuario())
+            .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontró el usuario con id " + request.getIdUsuario()));
 
         vehiculo.iniciarViaje();
         double importeEstimado = criterioTarifaService.calcularCosto(vehiculo, 1);
 
-        ProcesamientoDePagos.TipoDePago tipoPago = ProcesamientoDePagos.TipoDePago.fromString(metodoPago);
+        ProcesamientoDePagos.TipoDePago tipoPago = ProcesamientoDePagos.TipoDePago.fromString(request.getMetodoPago());
         if (tipoPago == null) {
-            throw new MedioDePagoNoValidoException("Método de pago no válido: " + metodoPago);
+            throw new MedioDePagoNoValidoException("Método de pago no válido: " + request.getMetodoPago());
         }
 
         ProcesamientoDePagos pago = new ProcesamientoDePagos(usuario.getId(), vehiculo.getNumPatente(), tipoPago, importeEstimado);
@@ -83,34 +85,36 @@ public class AlquilerController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/criterio")
-    public ResponseEntity<String> establecerCriterio(@RequestParam("tipo") String tipo) {
-        criterioTarifaService.establecerCriterio(tipo);
-        return ResponseEntity.ok("Criterio activo: " + criterioTarifaService.getCriterioActivo());
+    @PostMapping("/criterio")
+    public ResponseEntity<CriterioActivoResponse> establecerCriterio(@RequestBody CriterioTarifaRequest request) {
+        if (request == null || request.getTipo() == null || request.getTipo().isEmpty()) {
+            throw new IllegalArgumentException("Debe enviar el tipo de criterio en el cuerpo de la petición");
+        }
+        criterioTarifaService.establecerCriterio(request.getTipo());
+        return ResponseEntity.ok(new CriterioActivoResponse("Criterio activo actualizado", criterioTarifaService.getCriterioActivo()));
     }
 
-    @GetMapping("/finalizar")
-    public ResponseEntity<FinalizarAlquilerResponse> finalizar(@RequestParam("idUsuario") String idUsuario,
-                                                                 @RequestParam("patente") String patente,
-                                                                 @RequestParam("minutos") int minutos) {
-        if (idUsuario == null || idUsuario.isEmpty() || patente == null || patente.isEmpty()) {
-            throw new IllegalArgumentException("Debe enviar idUsuario, patente y minutos como query params");
+    @PostMapping("/finalizar")
+    public ResponseEntity<FinalizarAlquilerResponse> finalizar(@RequestBody FinalizarAlquilerRequest request) {
+        if (request == null || request.getIdUsuario() == null || request.getIdUsuario().isEmpty()
+                || request.getPatente() == null || request.getPatente().isEmpty()) {
+            throw new IllegalArgumentException("Debe enviar idUsuario, patente y minutos en el cuerpo de la petición");
         }
-        if (minutos < 0) {
+        if (request.getMinutos() < 0) {
             throw new IllegalArgumentException("Los minutos no pueden ser negativos.");
         }
 
-        Vehiculo vehiculo = estacionService.buscarVehiculoPorPatente(patente)
-                .orElseThrow(() -> new VechiculoNoEncontradoException("No se encontró el vehículo con patente " + patente));
+        Vehiculo vehiculo = estacionService.buscarVehiculoPorPatente(request.getPatente())
+                .orElseThrow(() -> new VechiculoNoEncontradoException("No se encontró el vehículo con patente " + request.getPatente()));
 
         if (!"En Viaje".equals(vehiculo.getEstadoActual())) {
             throw new IllegalStateException("El vehículo no está en viaje y no puede finalizarse.");
         }
 
-        Usuario usuario = usuarioService.findById(idUsuario)
-                .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontró el usuario con id " + idUsuario));
+        Usuario usuario = usuarioService.findById(request.getIdUsuario())
+                .orElseThrow(() -> new UsuarioNoEncontradoException("No se encontró el usuario con id " + request.getIdUsuario()));
 
-        double subtotal = criterioTarifaService.calcularCosto(vehiculo, minutos);
+        double subtotal = criterioTarifaService.calcularCosto(vehiculo, request.getMinutos());
         double importeFinal = usuario.calcularCosto(subtotal);
         vehiculo.finalizarViaje();
 
@@ -120,7 +124,7 @@ public class AlquilerController {
         FinalizarAlquilerResponse response = new FinalizarAlquilerResponse(
                 "Alquiler finalizado correctamente",
                 vehiculo.getNumPatente(),
-                minutos,
+                request.getMinutos(),
                 importeFinal,
                 vehiculo.getEstadoActual()
         );
