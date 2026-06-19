@@ -1,4 +1,4 @@
-package com.Error404.models;
+package com.Error404.strategies.tarifa;
 
 public class TarifaEstandarStrategy implements TarifaStrategy {
 

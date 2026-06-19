@@ -1,5 +1,6 @@
 package com.Error404.models;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,6 +12,7 @@ public abstract class Vehiculo implements Comparable<Vehiculo> {
     private String numPatente;
     private int porcentajeBateria;
     private double tarifaBase;
+    @Setter(AccessLevel.NONE)
     private VehiculoEstado estado;
 
     public Vehiculo() {

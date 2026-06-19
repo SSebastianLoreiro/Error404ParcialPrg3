@@ -21,6 +21,13 @@ public class EstacionService {
     }
 
     public EstacionDeAnclaje save(EstacionDeAnclaje estacion) {
+        if (estacion != null && estacion.getVehiculosDisponibles() != null) {
+            for (Vehiculo vehiculo : estacion.getVehiculosDisponibles()) {
+                if (vehiculo != null && vehiculo.getNumPatente() != null) {
+                    vehiculosPorPatente.put(vehiculo.getNumPatente(), vehiculo);
+                }
+            }
+        }
         return repository.save(estacion);
     }
 
@@ -44,6 +51,17 @@ public class EstacionService {
     }
 
     public boolean deleteByNombre(String nombreUnico) {
+        Optional<EstacionDeAnclaje> optionalEstacion = findByNombre(nombreUnico);
+        if (optionalEstacion.isPresent()) {
+            EstacionDeAnclaje estacion = optionalEstacion.get();
+            if (estacion.getVehiculosDisponibles() != null) {
+                for (Vehiculo vehiculo : estacion.getVehiculosDisponibles()) {
+                    if (vehiculo != null) {
+                        vehiculosPorPatente.remove(vehiculo.getNumPatente());
+                    }
+                }
+            }
+        }
         return repository.deleteById(nombreUnico);
     }
 

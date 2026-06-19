@@ -1,7 +1,7 @@
 package com.Error404.controllers;
 
+import com.Error404.comparators.VehiculoTarifaDescendenteComparator;
 import com.Error404.models.Vehiculo;
-import com.Error404.models.VehiculoTarifaDescendenteComparator;
 import com.Error404.services.EstacionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

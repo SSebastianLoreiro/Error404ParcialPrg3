@@ -1,19 +1,20 @@
 package com.Error404.services;
 
-import com.Error404.models.TarifaClimaticaStrategy;
-import com.Error404.models.TarifaEstandarStrategy;
-import com.Error404.models.TarifaHoraPicoStrategy;
-import com.Error404.models.TarifaStrategy;
 import com.Error404.models.Vehiculo;
+import com.Error404.strategies.tarifa.TarifaStrategy;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Service
 public class CriterioTarifaService {
 
+    private final Map<String, TarifaStrategy> criterios;
     private TarifaStrategy criterioActivo;
 
-    public CriterioTarifaService() {
-        this.criterioActivo = new TarifaEstandarStrategy();
+    public CriterioTarifaService(Map<String, TarifaStrategy> criterios) {
+        this.criterios = criterios;
+        this.criterioActivo = criterios.getOrDefault("tarifaEstandarStrategy", criterios.values().stream().findFirst().orElseThrow());
     }
 
     public double calcularCosto(Vehiculo vehiculo, int minutos) {
@@ -31,15 +32,36 @@ public class CriterioTarifaService {
         if (criterio == null) {
             throw new IllegalArgumentException("El criterio de tarifa no puede ser nulo.");
         }
-        String nombre = criterio.trim().toUpperCase();
-        if ("HORA_PICO".equals(nombre) || "HORAPICO".equals(nombre) || "HORA PICO".equals(nombre)) {
-            this.criterioActivo = new TarifaHoraPicoStrategy();
-        } else if ("CLIMATICO".equals(nombre) || "CLIMÁTICO".equals(nombre) || "CLIMA".equals(nombre)) {
-            this.criterioActivo = new TarifaClimaticaStrategy();
-        } else if ("ESTANDAR".equals(nombre) || "ESTÁNDAR".equals(nombre) || "NORMAL".equals(nombre)) {
-            this.criterioActivo = new TarifaEstandarStrategy();
-        } else {
+        String clave = normalizarCriterio(criterio);
+        TarifaStrategy estrategia = seleccionarEstrategia(clave);
+        if (estrategia == null) {
             throw new IllegalArgumentException("Criterio de tarifa desconocido: " + criterio);
         }
+        this.criterioActivo = estrategia;
+    }
+
+    private String normalizarCriterio(String criterio) {
+        return criterio
+                .trim()
+                .toUpperCase()
+                .replaceAll("\\s+", "_")
+                .replace("Á", "A")
+                .replace("É", "E")
+                .replace("Í", "I")
+                .replace("Ó", "O")
+                .replace("Ú", "U");
+    }
+
+    private TarifaStrategy seleccionarEstrategia(String clave) {
+        if (clave.contains("HORA") && clave.contains("PICO")) {
+            return criterios.get("tarifaHoraPicoStrategy");
+        }
+        if (clave.contains("CLIMA")) {
+            return criterios.get("tarifaClimaticaStrategy");
+        }
+        if (clave.contains("ESTANDAR") || clave.contains("NORMAL")) {
+            return criterios.get("tarifaEstandarStrategy");
+        }
+        return null;
     }
 }

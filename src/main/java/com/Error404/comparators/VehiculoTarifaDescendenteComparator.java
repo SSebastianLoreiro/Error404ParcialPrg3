@@ -1,5 +1,6 @@
-package com.Error404.models;
+package com.Error404.comparators;
 
+import com.Error404.models.Vehiculo;
 import java.util.Comparator;
 
 public class VehiculoTarifaDescendenteComparator implements Comparator<Vehiculo> {
