@@ -1,9 +1,6 @@
 package com.Error404.controllers;
 
-import com.Error404.controllers.CriterioActivoResponse;
-import com.Error404.controllers.CriterioTarifaRequest;
-import com.Error404.controllers.DesbloqueoRequest;
-import com.Error404.controllers.FinalizarAlquilerRequest;
+// DTOs are in the same package; explicit imports removed to avoid unused-import errors
 import com.Error404.exception.BateriaInsuficienteException;
 import com.Error404.exception.MedioDePagoNoValidoException;
 import com.Error404.exception.UsuarioNoEncontradoException;

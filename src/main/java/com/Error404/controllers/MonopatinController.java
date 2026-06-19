@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.Error404.controllers.VehiculoResumenResponse;
+// DTO in same package; explicit import removed
 
 @RestController
 @RequestMapping("/api/monopatines")

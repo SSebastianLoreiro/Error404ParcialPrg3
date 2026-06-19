@@ -8,8 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.Error404.controllers.PagoRequest;
-import com.Error404.controllers.PagoResponse;
+// DTOs are in the same package; explicit imports removed
 
 @RestController
 @RequestMapping("/api/pagos")
